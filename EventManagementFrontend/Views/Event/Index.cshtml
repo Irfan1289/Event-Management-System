@@ -1,0 +1,40 @@
+@model IEnumerable<EventManagement.Model.EventDetails>
+
+@{
+    ViewData["Title"] = "Events List";
+}
+
+<h2>Events</h2>
+
+<a asp-action="Create" class="btn btn-primary mb-3">Add Event</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Event Id</th>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Event Date</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var eventItem in Model)
+        {
+            <tr>
+                <td>@eventItem.EventId</td>
+                <td>@eventItem.EventName</td>
+                <td>@eventItem.EventCategory</td>
+                <td>@eventItem.EventDate.ToShortDateString()</td>
+                <td>@eventItem.Description</td>
+                <td>@eventItem.Status</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@eventItem.EventId" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@eventItem.EventId" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,11 @@
+C:\Users\irfanulla.mohammad\Downloads\Event\DAL\bin\Debug\net8.0\DAL.deps.json
+C:\Users\irfanulla.mohammad\Downloads\Event\DAL\bin\Debug\net8.0\DAL.dll
+C:\Users\irfanulla.mohammad\Downloads\Event\DAL\bin\Debug\net8.0\DAL.pdb
+C:\Users\irfanulla.mohammad\Downloads\Event\DAL\obj\Debug\net8.0\DAL.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\irfanulla.mohammad\Downloads\Event\DAL\obj\Debug\net8.0\DAL.AssemblyInfoInputs.cache
+C:\Users\irfanulla.mohammad\Downloads\Event\DAL\obj\Debug\net8.0\DAL.AssemblyInfo.cs
+C:\Users\irfanulla.mohammad\Downloads\Event\DAL\obj\Debug\net8.0\DAL.csproj.CoreCompileInputs.cache
+C:\Users\irfanulla.mohammad\Downloads\Event\DAL\obj\Debug\net8.0\DAL.dll
+C:\Users\irfanulla.mohammad\Downloads\Event\DAL\obj\Debug\net8.0\refint\DAL.dll
+C:\Users\irfanulla.mohammad\Downloads\Event\DAL\obj\Debug\net8.0\DAL.pdb
+C:\Users\irfanulla.mohammad\Downloads\Event\DAL\obj\Debug\net8.0\ref\DAL.dll

@@ -1,0 +1,23 @@
+@model EventManagement.Model.SessionInfo
+
+@{
+    ViewData["Title"] = "Delete Session";
+}
+
+<h2>Delete Session</h2>
+
+<h3>Are you sure you want to delete this session?</h3>
+
+<div>
+    <h4>@Model.SessionTitle</h4>
+    <p><strong>Event Id:</strong> @Model.EventId</p>
+    <p><strong>Speaker Id:</strong> @Model.SpeakerId</p>
+    <p><strong>Session Start:</strong> @Model.SessionStart.ToString("g")</p>
+    <p><strong>Session End:</strong> @Model.SessionEnd.ToString("g")</p>
+</div>
+
+<form asp-action="DeleteSession" method="post">
+    <input type="hidden" asp-for="SessionId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

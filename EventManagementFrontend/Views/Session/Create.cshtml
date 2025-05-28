@@ -1,0 +1,42 @@
+@model EventManagement.Model.SessionInfo
+
+@{
+    ViewData["Title"] = "Create Session";
+}
+
+<h2>Create New Session</h2>
+
+<form asp-action="CreateSession" method="post">
+    <div class="mb-3">
+        <label asp-for="SessionTitle" class="form-label"></label>
+        <input asp-for="SessionTitle" class="form-control" />
+        <span asp-validation-for="SessionTitle" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="EventId" class="form-label"></label>
+        <input asp-for="EventId" class="form-control" type="number" />
+        <span asp-validation-for="EventId" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="SpeakerId" class="form-label"></label>
+        <input asp-for="SpeakerId" class="form-control" type="number" />
+        <span asp-validation-for="SpeakerId" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="SessionStart" class="form-label"></label>
+        <input asp-for="SessionStart" class="form-control" type="datetime-local" />
+        <span asp-validation-for="SessionStart" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="SessionEnd" class="form-label"></label>
+        <input asp-for="SessionEnd" class="form-control" type="datetime-local" />
+        <span asp-validation-for="SessionEnd" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

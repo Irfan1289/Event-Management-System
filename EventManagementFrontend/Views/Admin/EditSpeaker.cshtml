@@ -1,0 +1,24 @@
+@model EventManagement.Model.SpeakersDetails
+
+@{
+    ViewData["Title"] = "Edit Speaker";
+}
+
+<h2>Edit Speaker</h2>
+
+<form asp-action="EditSpeaker" method="post">
+    <input type="hidden" asp-for="SpeakerId" />
+
+    <div class="form-group">
+        <label asp-for="SpeakerName"></label>
+        <input asp-for="SpeakerName" class="form-control" />
+        <span asp-validation-for="SpeakerName" class="text-danger"></span>
+    </div>
+
+    <button asp-action="Index" type="submit" class="btn btn-primary mt-2">Save</button>
+    <a asp-action="Speakers" class="btn btn-secondary mt-2">Back to List</a>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

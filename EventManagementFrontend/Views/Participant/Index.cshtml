@@ -1,0 +1,99 @@
+@model IEnumerable<EventManagement.Model.EventDetails>
+@using EventManagement.Model
+@using System.Linq
+
+@{
+    ViewData["Title"] = "Participant - Events";
+    var sessions = ViewBag.Sessions as List<SessionInfo>;
+    var registrations = ViewBag.Registrations as List<ParticipantEventDetails>;
+    var userEmail = ViewBag.UserEmail as string;
+
+    string message = ViewBag.Message as string;
+    string error = ViewBag.Error as string;
+}
+
+<h2>Available Events</h2>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-success">@message</div>
+}
+@if (!string.IsNullOrEmpty(error))
+{
+    <div class="alert alert-danger">@error</div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Event Id</th>
+            <th>Event Name</th>
+            <th>Event Date</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var evt in Model)
+        {
+            var isRegistered = registrations?.Any(r => r.EventId == evt.EventId && r.ParticipantEmailId == userEmail) ?? false;
+            <tr>
+                <td>@evt.EventId</td>
+                <td>@evt.EventName</td>
+                <td>@evt.EventDate.ToShortDateString()</td>
+                <td>
+                    @if (isRegistered)
+                    {
+                        <span class="text-success">Registered</span>
+                    }
+                    else
+                    {
+                        <a asp-action="Register" asp-route-eventId="@evt.EventId" class="btn btn-primary btn-sm">Register</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h2>Sessions</h2>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Session Id</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Event Id</th>
+            <th>Speaker</th>
+            <th>Session URL</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (sessions != null)
+        {
+            foreach (var session in sessions)
+            {
+                <tr>
+                    <td>@session.SessionId</td>
+                    <td>@session.SessionTitle</td>
+                    <td>@session.Description</td>
+                    <td>@session.SessionStart.ToString("g")</td>
+                    <td>@session.SessionEnd.ToString("g")</td>
+                    <td>@session.EventId</td>
+                    <td>@(session.Speaker?.SpeakerName ?? "N/A")</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(session.SessionUrl))
+                        {
+                            <a href="@session.SessionUrl" target="_blank">Join</a>
+                        }
+                        else
+                        {
+                            <span>N/A</span>
+                        }
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

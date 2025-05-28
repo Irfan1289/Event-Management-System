@@ -1,0 +1,33 @@
+@model IEnumerable<EventManagement.Model.SessionInfo>
+
+@{
+    ViewData["Title"] = "Sessions List";
+}
+
+<h2>Sessions</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Session Id</th>
+            <th>Session Name</th>
+            <th>Event Id</th>
+            <th>Speaker Id</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var session in Model)
+        {
+            <tr>
+                <td>@session.SessionId</td>
+                <td>@session.SessionTitle</td>
+                <td>@session.EventId</td>
+                <td>@session.SpeakerId</td>
+                <td>@session.SessionStart.ToString("g")</td>
+                <td>@session.SessionEnd.ToString("g")</td>
+            </tr>
+        }
+    </tbody>
+</table>
