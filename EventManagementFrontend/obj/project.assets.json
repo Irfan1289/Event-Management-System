@@ -1502,7 +1502,10 @@
         },
         "runtime": {
           "bin/placeholder/EventManagement.dll": {}
-        }
+        },
+        "frameworkReferences": [
+          "Microsoft.AspNetCore.App"
+        ]
       }
     }
   },

@@ -91,3 +91,4 @@ C:\Users\irfanulla.mohammad\Downloads\Event\EventManagementFrontend\obj\Debug\ne
 C:\Users\irfanulla.mohammad\Downloads\Event\EventManagementFrontend\obj\Debug\net8.0\EventManagementFrontend.pdb
 C:\Users\irfanulla.mohammad\Downloads\Event\EventManagementFrontend\obj\Debug\net8.0\EventManagementFrontend.genruntimeconfig.cache
 C:\Users\irfanulla.mohammad\Downloads\Event\EventManagementFrontend\obj\Debug\net8.0\ref\EventManagementFrontend.dll
+C:\Users\irfanulla.mohammad\Downloads\Event\EventManagementFrontend\obj\Debug\net8.0\EventManagementFrontend.sourcelink.json

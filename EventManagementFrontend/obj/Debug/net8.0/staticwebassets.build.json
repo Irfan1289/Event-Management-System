@@ -1,11 +1,23 @@
 {
   "Version": 1,
-  "Hash": "ZSHJrlif1IhR017zNx5D4thxF4nef3UJY+wPw3WNe/A=",
+  "Hash": "MVnkfVM773uhHWDRX/WoW/tioMojm6JBy+aXMmj3hYg=",
   "Source": "EventManagementFrontend",
   "BasePath": "_content/EventManagementFrontend",
   "Mode": "Default",
   "ManifestType": "Build",
-  "ReferencedProjectsConfiguration": [],
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "C:\\Users\\irfanulla.mohammad\\Downloads\\Event\\EventManagement\\EventManagement.csproj",
+      "Version": 2,
+      "Source": "EventManagement",
+      "GetPublishAssetsTargets": "ComputeReferencedStaticWebAssetsPublishManifest;GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework"
+    }
+  ],
   "DiscoveryPatterns": [
     {
       "Name": "EventManagementFrontend\\wwwroot",

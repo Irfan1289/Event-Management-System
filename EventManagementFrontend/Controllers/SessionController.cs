@@ -1,66 +1,89 @@
 using EventManagement.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
-using System.Text.Json;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using System;
 
 namespace EventManagementFrontend.Controllers
 {
-    public class SessionController : Controller
+    // Controller for handling user login, logout, and registration
+    public class LoginController : Controller
     {
         private readonly HttpClient _httpClient;
 
-        public SessionController(IHttpClientFactory httpClientFactory)
+        // Constructor with dependency injection for HttpClient
+        public LoginController(IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient();
-            _httpClient.BaseAddress = new System.Uri("http://localhost:5199/");
+            _httpClient.BaseAddress = new System.Uri("http://localhost:5199/"); // Adjust backend URL as needed
         }
 
-        public async Task<IActionResult> Index()
+        // GET: /Login/Index
+        // Returns the login view
+        [HttpGet]
+        public IActionResult Index() => View();
+
+        // POST: /Login/Index
+        // Handles user login, calls backend Auth API, stores JWT and role in session
+        [HttpPost]
+        public async Task<IActionResult> Index(string emailId, string password)
         {
-            var response = await _httpClient.GetAsync("api/SessionInfo");
-            if (!response.IsSuccessStatusCode) return View(new List<SessionInfo>());
-
-            var sessionsJson = await response.Content.ReadAsStringAsync();
-            var sessions = JsonSerializer.Deserialize<List<SessionInfo>>(sessionsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            return View(sessions);
-        }
-
-        // Add Create/Edit/Delete similarly
-        public async Task<IActionResult> Create(SessionInfo sessionInfo)
-        {
-            var json = JsonSerializer.Serialize(sessionInfo);
+            var loginRequest = new { EmailId = emailId, Password = password };
+            var json = JsonSerializer.Serialize(loginRequest);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync("api/SessionInfo", content);
+            // Call backend Auth API to get JWT token
+            var response = await _httpClient.PostAsync("api/Auth/login", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError("", "Invalid credentials");
+                return View();
+            }
 
-            if (response.IsSuccessStatusCode)
-                return RedirectToAction("Index");
+            var responseJson = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(responseJson);
+            var token = doc.RootElement.GetProperty("token").GetString();
 
-            ModelState.AddModelError("", "Error creating session");
-            return View(sessionInfo);
+            // Decode JWT to extract role claim
+            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
+
+            // Try multiple ways to get role claim for compatibility
+            var role = jwt.Claims.FirstOrDefault(c => c.Type == "role")?.Value
+                       ?? jwt.Claims.FirstOrDefault(c => c.Type.EndsWith("role"))?.Value
+                       ?? "User";
+
+            // Store JWT and user info in session
+            HttpContext.Session.SetString("JWToken", token);
+            HttpContext.Session.SetString("UserRole", role);
+            HttpContext.Session.SetString("EmailId", emailId);
+
+            // Redirect based on user role
+            if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+                return RedirectToAction("Index", "Admin");
+            else
+                return RedirectToAction("Index", "Participant");
         }
 
-        public async Task<IActionResult> Edit(int id)
+        // GET: /Login/Logout
+        // Clears session and logs out the user
+        public IActionResult Logout()
         {
-            var response = await _httpClient.GetAsync($"api/SessionInfo/{id}");
-            if (!response.IsSuccessStatusCode) return NotFound();
-
-            var json = await response.Content.ReadAsStringAsync();
-            var sessionInfo = JsonSerializer.Deserialize<SessionInfo>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            return View(sessionInfo);
-        }
-
-        public async Task<IActionResult> Delete(int id)
-        {
-            var response = await _httpClient.DeleteAsync($"api/SessionInfo/{id}");
-            if (!response.IsSuccessStatusCode) return NotFound();
-
+            HttpContext.Session.Clear();
             return RedirectToAction("Index");
+        }
+
+        // GET: /Login/Register
+        // Returns the registration view
+        [HttpGet]
+        public IActionResult Register()
+        {
+            return View();
         }
     }
 }

@@ -5,85 +5,85 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using System;
 
 namespace EventManagementFrontend.Controllers
 {
+    // Controller for handling user login, logout, and registration
     public class LoginController : Controller
     {
         private readonly HttpClient _httpClient;
 
+        // Constructor with dependency injection for HttpClient
         public LoginController(IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient();
-            _httpClient.BaseAddress = new System.Uri("http://localhost:5199/"); // Adjust backend URL
+            _httpClient.BaseAddress = new System.Uri("http://localhost:5199/"); // Adjust backend URL as needed
         }
 
+        // GET: /Login/Index
+        // Returns the login view
         [HttpGet]
         public IActionResult Index() => View();
 
+        // POST: /Login/Index
+        // Handles user login, calls backend Auth API, stores JWT and role in session
         [HttpPost]
         public async Task<IActionResult> Index(string emailId, string password)
         {
-            var response = await _httpClient.GetAsync($"api/userinfo/{emailId}");
+            var loginRequest = new { EmailId = emailId, Password = password };
+            var json = JsonSerializer.Serialize(loginRequest);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            // Call backend Auth API to get JWT token
+            var response = await _httpClient.PostAsync("api/Auth/login", content);
             if (!response.IsSuccessStatusCode)
             {
-                ModelState.AddModelError("", "Invalid user");
+                ModelState.AddModelError("", "Invalid credentials");
                 return View();
             }
 
-            var userJson = await response.Content.ReadAsStringAsync();
-            var user = JsonSerializer.Deserialize<UserInfo>(userJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var responseJson = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(responseJson);
+            var token = doc.RootElement.GetProperty("token").GetString();
 
-            if (user == null || user.Password != password)
-            {
-                ModelState.AddModelError("", "Invalid password");
-                return View();
-            }
+            // Decode JWT to extract role claim
+            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
 
-            HttpContext.Session.SetString("UserRole", user.Role);
-            HttpContext.Session.SetString("EmailId", user.EmailId);
+            // Try multiple ways to get role claim for compatibility
+            var role = jwt.Claims.FirstOrDefault(c => c.Type == "role")?.Value
+                       ?? jwt.Claims.FirstOrDefault(c => c.Type.EndsWith("role"))?.Value
+                       ?? "User";
 
-            if (user.Role == "Admin")
+            // Store JWT and user info in session
+            HttpContext.Session.SetString("JWToken", token);
+            HttpContext.Session.SetString("UserRole", role);
+            HttpContext.Session.SetString("EmailId", emailId);
+
+            // Redirect based on user role
+            if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
                 return RedirectToAction("Index", "Admin");
             else
                 return RedirectToAction("Index", "Participant");
         }
 
+        // GET: /Login/Logout
+        // Clears session and logs out the user
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();
             return RedirectToAction("Index");
         }
 
-        // GET: Register new user
+        // GET: /Login/Register
+        // Returns the registration view
         [HttpGet]
         public IActionResult Register()
         {
             return View();
-        }
-
-        // POST: Register new user
-        [HttpPost]
-        public async Task<IActionResult> Register(UserInfo user)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(user);
-            }
-
-            var json = JsonSerializer.Serialize(user);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.PostAsync("api/userinfo", content);
-
-            if (response.IsSuccessStatusCode)
-            {
-                // After successful registration, redirect to Login page
-                return RedirectToAction("Index");
-            }
-
-            ModelState.AddModelError("", "Registration failed. Try again.");
-            return View(user);
         }
     }
 }

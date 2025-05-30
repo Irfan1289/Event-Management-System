@@ -1,104 +1,89 @@
 using EventManagement.Model;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
-using System.Text.Json;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using System;
 
 namespace EventManagementFrontend.Controllers
 {
-    public class EventController : Controller
+    // Controller for handling user login, logout, and registration
+    public class LoginController : Controller
     {
         private readonly HttpClient _httpClient;
 
-        public EventController(IHttpClientFactory httpClientFactory)
+        // Constructor with dependency injection for HttpClient
+        public LoginController(IHttpClientFactory httpClientFactory)
         {
             _httpClient = httpClientFactory.CreateClient();
-            _httpClient.BaseAddress = new System.Uri("http://localhost:5199/");
+            _httpClient.BaseAddress = new System.Uri("http://localhost:5199/"); // Adjust backend URL as needed
         }
 
-        public async Task<IActionResult> Index()
-        {
-            var response = await _httpClient.GetAsync("api/EventDetails");
-            if (!response.IsSuccessStatusCode) return View(new List<EventDetails>());
-
-            var eventsJson = await response.Content.ReadAsStringAsync();
-            var events = JsonSerializer.Deserialize<List<EventDetails>>(eventsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            return View(events);
-        }
-
+        // GET: /Login/Index
+        // Returns the login view
         [HttpGet]
-        public IActionResult Create()
+        public IActionResult Index() => View();
+
+        // POST: /Login/Index
+        // Handles user login, calls backend Auth API, stores JWT and role in session
+        [HttpPost]
+        public async Task<IActionResult> Index(string emailId, string password)
+        {
+            var loginRequest = new { EmailId = emailId, Password = password };
+            var json = JsonSerializer.Serialize(loginRequest);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            // Call backend Auth API to get JWT token
+            var response = await _httpClient.PostAsync("api/Auth/login", content);
+            if (!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError("", "Invalid credentials");
+                return View();
+            }
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(responseJson);
+            var token = doc.RootElement.GetProperty("token").GetString();
+
+            // Decode JWT to extract role claim
+            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(token);
+
+            // Try multiple ways to get role claim for compatibility
+            var role = jwt.Claims.FirstOrDefault(c => c.Type == "role")?.Value
+                       ?? jwt.Claims.FirstOrDefault(c => c.Type.EndsWith("role"))?.Value
+                       ?? "User";
+
+            // Store JWT and user info in session
+            HttpContext.Session.SetString("JWToken", token);
+            HttpContext.Session.SetString("UserRole", role);
+            HttpContext.Session.SetString("EmailId", emailId);
+
+            // Redirect based on user role
+            if (string.Equals(role, "Admin", StringComparison.OrdinalIgnoreCase))
+                return RedirectToAction("Index", "Admin");
+            else
+                return RedirectToAction("Index", "Participant");
+        }
+
+        // GET: /Login/Logout
+        // Clears session and logs out the user
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Index");
+        }
+
+        // GET: /Login/Register
+        // Returns the registration view
+        [HttpGet]
+        public IActionResult Register()
         {
             return View();
         }
-
-        [HttpPost]
-        public async Task<IActionResult> Create(EventDetails eventDetails)
-        {
-            var json = JsonSerializer.Serialize(eventDetails);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.PostAsync("api/EventDetails", content);
-
-            if (response.IsSuccessStatusCode)
-                return RedirectToAction("Index");
-
-            ModelState.AddModelError("", "Error creating event");
-            return View(eventDetails);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var response = await _httpClient.GetAsync($"api/EventDetails/{id}");
-            if (!response.IsSuccessStatusCode) return NotFound();
-
-            var json = await response.Content.ReadAsStringAsync();
-            var eventDetails = JsonSerializer.Deserialize<EventDetails>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            return View("EditEvent", eventDetails);
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> EditEvent(EventDetails eventDetails)
-        {
-            var json = JsonSerializer.Serialize(eventDetails);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.PutAsync($"api/EventDetails/{eventDetails.EventId}", content);
-
-            if (response.IsSuccessStatusCode)
-                return RedirectToAction("Index");
-
-            ModelState.AddModelError("", "Error updating event");
-            return View("EditEvent", eventDetails);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var response = await _httpClient.GetAsync($"api/EventDetails/{id}");
-            if (!response.IsSuccessStatusCode) return NotFound();
-
-            var json = await response.Content.ReadAsStringAsync();
-            var eventDetails = JsonSerializer.Deserialize<EventDetails>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            return View(eventDetails);
-        }
-
-        [HttpPost]
-public async Task<IActionResult> DeleteConfirmed(int id)
-{
-    var response = await _httpClient.DeleteAsync($"api/EventDetails/{id}");
-    if (response.IsSuccessStatusCode)
-        return RedirectToAction("Index");
-
-    ModelState.AddModelError("", "Error deleting event");
-    return RedirectToAction("Index");
-}
-
     }
 }
