@@ -1,0 +1,32 @@
+@model IEnumerable<EventManagement.Model.SpeakersDetails>
+
+@{
+    ViewData["Title"] = "Speakers";
+}
+
+<h2>Speakers</h2>
+
+<a href="@Url.Action("CreateSpeaker", "Admin")" class="btn btn-success mb-3">Add New Speaker</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Speaker Id</th>
+            <th>Speaker Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var speaker in Model)
+        {
+            <tr>
+                <td>@speaker.SpeakerId</td>
+                <td>@speaker.SpeakerName</td>
+                <td>
+                    <a href="@Url.Action("EditSpeaker", "Admin", new { id = speaker.SpeakerId })" class="btn btn-primary btn-sm">Edit</a>
+                    <a href="@Url.Action("DeleteSpeaker", "Admin", new { id = speaker.SpeakerId })" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

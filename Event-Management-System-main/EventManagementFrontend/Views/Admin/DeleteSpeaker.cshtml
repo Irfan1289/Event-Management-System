@@ -1,0 +1,20 @@
+@model EventManagement.Model.SpeakersDetails
+
+@{
+    ViewData["Title"] = "Delete Speaker";
+}
+
+<h2>Delete Speaker</h2>
+
+<h3>Are you sure you want to delete this speaker?</h3>
+
+<div>
+    <h4>@Model.SpeakerName</h4>
+    <hr />
+</div>
+
+<form asp-action="DeleteSpeaker" method="post">
+    <input type="hidden" asp-for="SpeakerId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Speakers" class="btn btn-secondary">Cancel</a>
+</form>

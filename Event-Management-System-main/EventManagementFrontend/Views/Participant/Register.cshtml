@@ -1,0 +1,19 @@
+@model EventManagement.Model.EventDetails
+
+@{
+    ViewData["Title"] = "Register for Event";
+}
+
+<h2>Register for Event</h2>
+
+<div>
+    <h4>@Model.EventName</h4>
+    <p><strong>Date:</strong> @Model.EventDate.ToShortDateString()</p>
+    <p>@Model.Description</p>
+
+    <form asp-action="RegisterConfirmed" method="post">
+        <input type="hidden" name="eventId" value="@Model.EventId" />
+        <button type="submit" class="btn btn-primary">Confirm Registration</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
