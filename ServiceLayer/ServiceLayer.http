@@ -1,0 +1,6 @@
+@ServiceLayer_HostAddress = http://localhost:5199
+
+GET {{ServiceLayer_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

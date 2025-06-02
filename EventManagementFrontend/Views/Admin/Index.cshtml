@@ -1,0 +1,125 @@
+@model IEnumerable<EventManagement.Model.EventDetails>
+@using EventManagement.Model
+
+
+@{
+    ViewData["Title"] = "Admin Dashboard - Events, Sessions & Speakers";
+    var sessions = ViewBag.Sessions as List<SessionInfo>;
+    var speakers = ViewBag.Speakers as List<SpeakersDetails>;
+}
+
+<h2>Events</h2>
+<a href="@Url.Action("CreateEvent", "Admin")" class="btn btn-success mb-3">Add New Event</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Event Id</th>
+            <th>Event Name</th>
+            <th>Event Date</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var evt in Model)
+        {
+            <tr>
+                <td>@evt.EventId</td>
+                <td>@evt.EventName</td>
+                <td>@evt.EventDate.ToShortDateString()</td>
+                <td>@evt.EventCategory</td>
+                <td>@evt.Status</td>
+                <td>
+                    <a href="@Url.Action("EditEvent", "Admin", new { id = evt.EventId })" class="btn btn-primary btn-sm">Edit</a>
+                    <a href="@Url.Action("DeleteEvent", "Admin", new { id = evt.EventId })" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<hr />
+
+<h2>Sessions</h2>
+<a href="@Url.Action("CreateSession", "Admin")" class="btn btn-success mb-3">Add New Session</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Session Id</th>
+            <th>Title</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Event Id</th>
+            <th>Speaker</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (sessions != null && sessions.Any())
+        {
+            foreach (var session in sessions)
+            {
+                <tr>
+                    <td>@session.SessionId</td>
+                    <td>@session.SessionTitle</td>
+                    <td>@session.SessionStart.ToShortTimeString()</td>
+                    <td>@session.SessionEnd.ToShortTimeString()</td>
+                    <td>@session.EventId</td>
+                    <td>@session.Speaker?.SpeakerName</td>
+                    <td>
+                        <a href="@Url.Action("EditSession", "Admin", new { id = session.SessionId })" class="btn btn-primary btn-sm">Edit</a>
+                        <a href="@Url.Action("DeleteSession", "Admin", new { id = session.SessionId })" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="7" class="text-center">No sessions available.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<hr />
+
+<h2>Speakers</h2>
+
+<a href="@Url.Action("CreateSpeaker", "Admin")" class="btn btn-success mb-3">Add New Speaker</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Speaker Id</th>
+            <th>Speaker Name</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (speakers != null && speakers.Any())
+    {
+        foreach (var speaker in speakers)
+        {
+            <tr>
+                <td>@speaker.SpeakerId</td>
+                <td>@speaker.SpeakerName</td>
+                <td>
+                    <a href="@Url.Action("EditSpeaker", "Admin", new { id = speaker.SpeakerId })" class="btn btn-primary btn-sm">Edit</a>
+                    <a href="@Url.Action("DeleteSpeaker", "Admin", new { id = speaker.SpeakerId })" class="btn btn-danger btn-sm">Delete</a>
+                </td>
+            </tr>
+        }
+    }
+    else
+    {
+        <tr>
+            <td colspan="3" class="text-center">No speakers available.</td>
+        </tr>
+    }
+</tbody>
+
+</table>

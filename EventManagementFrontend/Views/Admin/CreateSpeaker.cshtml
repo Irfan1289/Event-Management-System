@@ -1,0 +1,21 @@
+@model EventManagement.Model.SpeakersDetails
+
+@{
+    ViewData["Title"] = "Create Speaker";
+}
+
+<h2>Create Speaker</h2>
+
+<form asp-action="CreateSpeaker" method="post">
+    <div class="form-group">
+        <label asp-for="SpeakerName"></label>
+        <input asp-for="SpeakerName" class="form-control" />
+        <span asp-validation-for="SpeakerName" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary mt-2">Create</button>
+    <a asp-action="Speakers" class="btn btn-secondary mt-2">Back to List</a>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

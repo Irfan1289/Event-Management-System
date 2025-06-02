@@ -1,0 +1,14 @@
+@model EventManagement.Model.SessionInfo
+
+@{
+    ViewData["Title"] = "Session Details";
+}
+
+<h2>@Model.SessionTitle</h2>
+
+<p><strong>Event Id:</strong> @Model.EventId</p>
+<p><strong>Speaker Id:</strong> @Model.SpeakerId</p>
+<p><strong>Start Time:</strong> @Model.SessionStart.ToString("f")</p>
+<p><strong>End Time:</strong> @Model.SessionEnd.ToString("f")</p>
+
+<a asp-action="Index" class="btn btn-primary">Back to List</a>
